@@ -2,7 +2,7 @@
 $host = "127.0.0.1";
 $username = "root";
 $password = "";
-$database_name = "perpus_elsa";
+$database_name = "brary1";
 $connection = mysqli_connect($host, $username, $password, $database_name);
 
 /* SIGN UP Member */
@@ -309,7 +309,7 @@ function searchPinjamMember($keyword)
   $statusString = implode(',', $statusArray);
 
   // Search Peminjaman Member
-  $searchPinjam = "SELECT peminjaman.id, peminjaman.id_buku, buku.cover, buku.judul, peminjaman.nisn, member.nama, user.username,peminjaman.harga,user.no_telp, peminjaman.tgl_pinjam, peminjaman.tgl_kembali, peminjaman.status
+  $searchPinjam = "SELECT peminjaman.id AS peminjaman_id, peminjaman.id_buku, buku.cover, buku.judul, peminjaman.nisn, member.nama, user.username,peminjaman.harga,user.no_telp, peminjaman.tgl_pinjam, peminjaman.tgl_kembali, peminjaman.status
         FROM peminjaman
         INNER JOIN buku ON peminjaman.id_buku = buku.id_buku
         INNER JOIN member ON peminjaman.nisn = member.nisn
@@ -460,7 +460,7 @@ function pinjamBuku($dataBuku)
       return 0; 
     }
 
-  $queryPinjam = "INSERT INTO peminjaman (id, id_buku, nisn, id_user, tgl_pinjam, tgl_kembali,harga, status) VALUES(null, '$idBuku', $nisn, $idAdmin, '$tglPinjam', '$tglKembali','$harga       ', '$status')";
+  $queryPinjam = "INSERT INTO peminjaman (id, id_buku, nisn, id_user, tgl_pinjam, tgl_kembali,harga, status) VALUES(null, '$idBuku', $nisn, $idAdmin, '$tglPinjam', '$tglKembali','$harga', '$status')";
   mysqli_query($connection, $queryPinjam);
   return mysqli_affected_rows($connection);
 }
@@ -482,6 +482,28 @@ function pengembalian() {
       $queryUpdateStatus = "UPDATE peminjaman SET status = '3' WHERE id = '$idPeminjaman'";
       mysqli_query($connection, $queryUpdateStatus);
   }
+}
+function searchHistory($keyword)
+{
+    $nisn = $_SESSION['nisn'];
+
+    // Search Peminjaman Member
+    $searchPinjam = "SELECT peminjaman.id, peminjaman.id_buku, buku.cover, buku.judul, peminjaman.nisn, member.nama, user.username, peminjaman.tgl_pinjam, peminjaman.tgl_kembali, peminjaman.status
+        FROM peminjaman
+        INNER JOIN buku ON peminjaman.id_buku = buku.id_buku
+        INNER JOIN member ON peminjaman.nisn = member.nisn
+        INNER JOIN user ON peminjaman.id_user = user.id
+        WHERE peminjaman.nisn = '$nisn' AND status = '3' AND (
+            member.nisn LIKE '%$keyword%' OR 
+            member.nama LIKE '%$keyword%' OR 
+            user.username LIKE '%$keyword%' OR 
+            buku.judul LIKE '%$keyword%' OR 
+            peminjaman.tgl_pinjam LIKE '%$keyword%' OR 
+            peminjaman.tgl_kembali LIKE '%$keyword%'
+        )
+        ORDER BY peminjaman.id DESC";
+
+    return queryReadData($searchPinjam);
 }
 
 
