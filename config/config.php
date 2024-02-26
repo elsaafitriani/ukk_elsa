@@ -2,7 +2,7 @@
 $host = "127.0.0.1";
 $username = "root";
 $password = "";
-$database_name = "brary1";
+$database_name = "perpus_elsa";
 $connection = mysqli_connect($host, $username, $password, $database_name);
 
 /* SIGN UP Member */
